@@ -1,0 +1,6 @@
+int value = 100
+int value1 = 10
+
+var i = value + value1
+
+class test()
