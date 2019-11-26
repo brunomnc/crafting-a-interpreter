@@ -1,4 +1,4 @@
-package core
+package Lexer
 
 case class Token(
     tokenType: TokenType,
