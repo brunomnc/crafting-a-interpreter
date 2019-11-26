@@ -1,11 +1,12 @@
-package Lexer
+package lexer
 
 case class Token(
     tokenType: TokenType,
     lexeme: String,
     literal: Object,
-    line: Int
+    line: Int,
+    column: Int
 ) {
 
-  override def toString: String = tokenType + " " + lexeme + " " + literal + " " + line
+  override def toString: String = tokenType + " " + lexeme + " " + literal + " " + line + ", " + column
 }

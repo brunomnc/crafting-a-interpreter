@@ -1,4 +1,4 @@
-package core
+package lexer
 
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.ListBuffer
@@ -11,7 +11,7 @@ trait Scanner {
   def advance: Char
   def addToken(tokenType: TokenType): Unit
   def addToken(tokenType: TokenType, literal: Option[Any]): Unit
-  def next(expected: Char): Boolean
+  def next(expected: Char)(implicit f:Boolean): Boolean
   def peek: Char
   def isDigit(c: Char): Boolean
   def number(): Unit
@@ -25,7 +25,8 @@ case class TokenScanner(source: String) extends Scanner {
   var tokens: ListBuffer[Token] = ListBuffer[Token]()
   var start: Int                = 0
   var current: Int              = 0
-  var line: Int                 = 0
+  var column: Int               = 0
+  var line: Int                 = 1
 
   val keywords: HashMap[String, TokenType] = HashMap(
     "and"    -> AND,
@@ -51,7 +52,7 @@ case class TokenScanner(source: String) extends Scanner {
       start = current
       scanToken
     }
-    tokens += Token(EOF, "", null, line)
+    tokens += Token(EOF, "", null, line, column)
     tokens
   }
 
@@ -59,29 +60,35 @@ case class TokenScanner(source: String) extends Scanner {
 
   def scanToken: Unit = {
     advance match {
-      case '('  => addToken(LEFT_PAREN)
-      case ')'  => addToken(RIGHT_PAREN)
-      case '{'  => addToken(LEFT_BRACE)
-      case '}'  => addToken(RIGHT_BRACE)
-      case '.'  => addToken(DOT)
-      case ','  => addToken(COMMA)
-      case '-'  => addToken(MINUS)
-      case '+'  => addToken(PLUS)
-      case ';'  => addToken(SEMICOLON)
-      case '*'  => addToken(STAR)
-      case '('  => addToken(LEFT_PAREN)
-      case ')'  => addToken(RIGHT_PAREN)
-      case '!'  => addToken(if (next('=')) EQUAL_EQUAL else EQUAL)
-      case '/'  => if (next('/')) { while (peek != '/' && !isAtEnd) advance } else addToken(SLASH)
-      case '\n' => line += 1
-      case '\r' => line += 1
-      case '\t' => line += 1
-      case c    => if (isDigit(c)) number else if (isAlpha(c)) identifier
+      case '(' => addToken(LEFT_PAREN)
+      case ')' => addToken(RIGHT_PAREN)
+      case '{' => addToken(LEFT_BRACE)
+      case '}' => addToken(RIGHT_BRACE)
+      case '.' => addToken(DOT)
+      case ',' => addToken(COMMA)
+      case '-' => addToken(MINUS)
+      case '+' => addToken(PLUS)
+      case ';' => addToken(SEMICOLON)
+      case '*' => addToken(STAR)
+      case '(' => addToken(LEFT_PAREN)
+      case ')' => addToken(RIGHT_PAREN)
+      case '!' => addToken(if (next('=')(isAtEnd)) EQUAL_EQUAL else EQUAL)
+      case '/' => if (next('/')(isAtEnd)) { while (peek != '/' && !isAtEnd) advance } else addToken(SLASH)
+      case '\n' =>
+        line += 1
+        start = 0
+        column = 0
+      case '\r' =>
+        line += 1
+      case '\t' =>
+        line += 1
+      case c => if (isDigit(c)) number else if (isAlpha(c)) identifier
     }
   }
 
   def advance: Char = {
     current += 1
+    column += 1
     source(current - 1)
   }
 
@@ -91,15 +98,13 @@ case class TokenScanner(source: String) extends Scanner {
 
   def addToken(tokenType: TokenType, literal: Option[Any]): Unit = {
     val text: String = source.substring(start, current)
-    tokens += Token(tokenType, text, literal, line)
+    tokens += Token(tokenType, text, literal, line, column)
   }
 
-  def next(expected: Char): Boolean = {
-    if (isAtEnd) return false
-    if (source(current) != expected) return false
+  def next(ex: Char)(implicit f: Boolean): Boolean = if (!f || source(current) != ex) {
     current += 1
     true
-  }
+  } else false
 
   def peek: Char = if (isAtEnd) '\u0000' else source(current)
 

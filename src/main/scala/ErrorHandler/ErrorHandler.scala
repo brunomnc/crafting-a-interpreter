@@ -1,3 +1,5 @@
 package ErrorHandler
 
-case class ErrorHandler ()
+trait Error
+
+case object FileDoesNotExist extends Error

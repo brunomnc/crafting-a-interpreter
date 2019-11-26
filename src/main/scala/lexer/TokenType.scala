@@ -1,4 +1,4 @@
-package core
+package lexer
 
 sealed trait TokenType
 case object LEFT_PAREN extends TokenType
