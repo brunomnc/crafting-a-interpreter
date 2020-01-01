@@ -56,7 +56,10 @@ case class TokenScanner(source: String) extends Scanner {
     tokens
   }
 
-  def isAtEnd: Boolean = current >= source.length
+  def isAtEnd: Boolean = {if(current >= source.length) {
+    column += 1
+    true
+  } else false }
 
   def scanToken: Unit = {
     advance match {
@@ -70,8 +73,6 @@ case class TokenScanner(source: String) extends Scanner {
       case '+' => addToken(PLUS)
       case ';' => addToken(SEMICOLON)
       case '*' => addToken(STAR)
-      case '(' => addToken(LEFT_PAREN)
-      case ')' => addToken(RIGHT_PAREN)
       case '!' => addToken(if (next('=')(isAtEnd)) EQUAL_EQUAL else EQUAL)
       case '/' => if (next('/')(isAtEnd)) { while (peek != '/' && !isAtEnd) advance } else addToken(SLASH)
       case '\n' =>

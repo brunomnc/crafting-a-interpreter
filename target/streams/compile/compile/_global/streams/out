@@ -1,6 +1,0 @@
-[0m[[0m[0mdebug[0m] [0m[0mAcquiring lock on file /Users/bruno/Scala/Interpreter/project/target/.sbt-compilation-infos/interpreter-compile/.sbt-idea-lock ...[0m
-[0m[[0m[33mwarn[0m] [0m[0m/Users/bruno/Scala/Interpreter/src/main/scala/lexer/Scanner.scala:73:27: unreachable code[0m
-[0m[[0m[33mwarn[0m] [0m[0m      case '(' => addToken(LEFT_PAREN)[0m
-[0m[[0m[33mwarn[0m] [0m[0m                          ^[0m
-[0m[[0m[33mwarn[0m] [0m[0mone warning found[0m
-[0m[[0m[0mdebug[0m] [0m[0mReleasing lock on file /Users/bruno/Scala/Interpreter/project/target/.sbt-compilation-infos/interpreter-compile/.sbt-idea-lock.[0m
