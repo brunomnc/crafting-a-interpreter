@@ -1,5 +1,7 @@
 package lexer
 
+import errorhandler.{LexicalFailure, UnrecognizedToken}
+
 import scala.collection.immutable.HashMap
 import scala.collection.mutable.ListBuffer
 import scala.util.Try
@@ -7,11 +9,11 @@ import scala.util.Try
 trait Scanner {
   def scanTokens: ListBuffer[Token]
   def isAtEnd: Boolean
-  def scanToken: Unit
+  def scanToken: Either[LexicalFailure, Unit]
   def advance: Char
   def addToken(tokenType: TokenType): Unit
   def addToken(tokenType: TokenType, literal: Option[Any]): Unit
-  def next(expected: Char)(implicit f:Boolean): Boolean
+  def next(expected: Char)(implicit f: Boolean): Boolean
   def peek: Char
   def isDigit(c: Char): Boolean
   def number(): Unit
@@ -56,34 +58,39 @@ case class TokenScanner(source: String) extends Scanner {
     tokens
   }
 
-  def isAtEnd: Boolean = {if(current >= source.length) {
-    column += 1
-    true
-  } else false }
+  def isAtEnd: Boolean = {
+    if (current >= source.length) {
+      column += 1
+      true
+    } else false
+  }
 
-  def scanToken: Unit = {
+  def scanToken: Either[LexicalFailure, Unit] = {
     advance match {
-      case '(' => addToken(LEFT_PAREN)
-      case ')' => addToken(RIGHT_PAREN)
-      case '{' => addToken(LEFT_BRACE)
-      case '}' => addToken(RIGHT_BRACE)
-      case '.' => addToken(DOT)
-      case ',' => addToken(COMMA)
-      case '-' => addToken(MINUS)
-      case '+' => addToken(PLUS)
-      case ';' => addToken(SEMICOLON)
-      case '*' => addToken(STAR)
-      case '!' => addToken(if (next('=')(isAtEnd)) EQUAL_EQUAL else EQUAL)
-      case '/' => if (next('/')(isAtEnd)) { while (peek != '/' && !isAtEnd) advance } else addToken(SLASH)
+      case '(' => Right(addToken(LEFT_PAREN))
+      case ')' => Right(addToken(RIGHT_PAREN))
+      case '{' => Right(addToken(LEFT_BRACE))
+      case '}' => Right(addToken(RIGHT_BRACE))
+      case '.' => Right(addToken(DOT))
+      case ',' => Right(addToken(COMMA))
+      case '-' => Right(addToken(MINUS))
+      case '+' => Right(addToken(PLUS))
+      case ';' => Right(addToken(SEMICOLON))
+      case '*' => Right(addToken(STAR))
+      case '!' => Right(addToken(if (next('=')(isAtEnd)) EQUAL_EQUAL else EQUAL))
+      case '/' => if (next('/')(isAtEnd)) Right({ while (peek != '/' && !isAtEnd) advance }) else Right(addToken(SLASH))
       case '\n' =>
-        line += 1
-        start = 0
-        column = 0
+        Right {
+          line += 1
+          start = 0
+          column = 0
+        }
       case '\r' =>
-        line += 1
+        Right(line += 1)
       case '\t' =>
-        line += 1
-      case c => if (isDigit(c)) number else if (isAlpha(c)) identifier
+        Right(line += 1)
+      case c => if (isDigit(c)) Right(number) else if (isAlpha(c)) Right(identifier) else Left(UnrecognizedToken)
+      case _ => Left(UnrecognizedToken)
     }
   }
 
@@ -102,10 +109,11 @@ case class TokenScanner(source: String) extends Scanner {
     tokens += Token(tokenType, text, literal, line, column)
   }
 
-  def next(ex: Char)(implicit f: Boolean): Boolean = if (!f || source(current) != ex) {
-    current += 1
-    true
-  } else false
+  def next(ex: Char)(implicit f: Boolean): Boolean =
+    if (!f || source(current) != ex) {
+      current += 1
+      true
+    } else false
 
   def peek: Char = if (isAtEnd) '\u0000' else source(current)
 

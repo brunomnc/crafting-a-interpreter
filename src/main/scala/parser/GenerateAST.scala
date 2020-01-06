@@ -12,7 +12,7 @@ case class GenerateAST(basename: String, types: List[String]) {
     result <- defineVisitor(basename, types)
   } yield result
 
-  def defineHeader: Either[ASTTypeFailure, Success] = {
+  def defineHeader: Either[ParsingFailure, Success] = {
     try {
       w.println("package parser")
       w.println()
@@ -27,7 +27,7 @@ case class GenerateAST(basename: String, types: List[String]) {
     }
   }
 
-  def defineType(baseName: String): Either[ASTTypeFailure, Success] = {
+  def defineType(baseName: String): Either[ParsingFailure, Success] = {
     try {
       for (t <- types) {
         val className: String = t.split(">")(0).trim
@@ -43,7 +43,7 @@ case class GenerateAST(basename: String, types: List[String]) {
     }
   }
 
-  def defineVisitor(baseName: String, types: List[String]): Either[ASTVisitorFailure, Success] = {
+  def defineVisitor(baseName: String, types: List[String]): Either[ParsingFailure, Success] = {
     try {
       w.println("trait Visitor {")
       w.println(s"  def print(${baseName.toLowerCase}: $baseName): String")

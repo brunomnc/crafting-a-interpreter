@@ -17,7 +17,7 @@ case object BANG_EQUAL extends TokenType
 case object EQUAL extends TokenType
 case object EQUAL_EQUAL extends TokenType
 case object GREATER extends TokenType
-case object REATER_EQUAL extends TokenType
+case object GREATER_EQUAL extends TokenType
 case object LESS extends TokenType
 case object LESS_EQUAL extends TokenType
 case object IDENTIFIER extends TokenType

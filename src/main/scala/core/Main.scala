@@ -16,8 +16,8 @@ object Main extends App {
     case 0 => runPrompt()
     case 1 => runFile(args(1)).fold(_ => Main, _ => ())
     case 2 => buildAST
-    case 3 => mockAST
-    case _ => error
+    case 3 => mockAST()
+    case _ => halt()
   }
 
   def runFile(path: String): Either[Failure, Unit] =
@@ -38,9 +38,11 @@ object Main extends App {
   }
 
   def run(source: String): Unit = {
-    if (source.equals("exit")) error
+    if (source.equals("exit")) halt()
     val scanner: Scanner          = TokenScanner(source)
     val tokens: ListBuffer[Token] = scanner.scanTokens
+    val parser: Parser            = Parser(tokens.toList)
+    parser.parse.fold(_ => halt(), e => println(new AstPrinter().print(e)))
     for (token <- tokens) println(token)
   }
 
@@ -58,7 +60,7 @@ object Main extends App {
     } yield ast
   }
 
-  def error(): Unit = {
+  def halt(): Unit = {
     println("some error")
     System.exit(0)
   }
@@ -68,4 +70,21 @@ object Main extends App {
       Binary(Unary(Token(MINUS, "-", Nil, 1, 1), Literal(123)), Token(STAR, "*", Nil, 1, 1), Grouping(Literal(321)))
     println(new AstPrinter().print(expr))
   }
+
+  def report(line: Int, where: String, message: String): String = {
+    val errorString = s"[line, $line], Error $where: $message"
+    println(errorString)
+    state.error = true
+    errorString
+  }
+
+  def error(token: Token, message: String): ParseError = {
+    state.error = true
+    if (token.tokenType == EOF) ParseError(report(token.line, " at end", message))
+    else ParseError(report(token.line, s" at $token.lexeme '", message))
+  }
+}
+
+object state {
+  var error = false
 }
