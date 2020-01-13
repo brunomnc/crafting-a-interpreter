@@ -23,4 +23,6 @@ class AstPrinter extends Visitor {
     builder.append(")")
     builder.toString
   }
+
+  def evaluate(expr: Expr): AnyRef = ???
 }

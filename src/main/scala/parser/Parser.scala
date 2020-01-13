@@ -106,16 +106,16 @@ case class Parser(tokens: List[Token], var current: Int = 0) {
   def synchronize(): Unit = {
     advance
     while (!isAtEnd) {
-      if (previous.tokenType == SEMICOLON) Unit
+      if (previous.tokenType == SEMICOLON) return
       peek.tokenType match {
-        case CLASS  => Unit
-        case FUN    => Unit
-        case VAR    => Unit
-        case FOR    => Unit
-        case IF     => Unit
-        case WHILE  => Unit
-        case PRINT  => Unit
-        case RETURN => Unit
+        case CLASS  => return
+        case FUN    => return
+        case VAR    => return
+        case FOR    => return
+        case IF     => return
+        case WHILE  => return
+        case PRINT  => return
+        case RETURN => return
       }
       advance
     }

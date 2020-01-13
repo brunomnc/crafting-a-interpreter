@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Interpreter.iml" filepath="$PROJECT_DIR$/.idea/modules/Interpreter.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Interpreter-build.iml" filepath="$PROJECT_DIR$/.idea/modules/Interpreter-build.iml" />
     </modules>
   </component>
 </project>

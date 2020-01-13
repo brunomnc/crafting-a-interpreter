@@ -6,11 +6,9 @@ sealed trait Failure {
 }
 sealed trait Success
 
-
 trait IOFailure extends Failure
 trait LexicalFailure extends Failure
 trait ParsingFailure extends Failure
-
 
 case object ASTSuccess extends Success
 
@@ -35,3 +33,7 @@ object ASTVisitorFailure extends ParsingFailure {
 }
 
 case class ParseError(error: String) extends RuntimeException
+
+case class RuntimeError(error: String) extends  RuntimeException with Failure {
+  def err: String = error
+}
