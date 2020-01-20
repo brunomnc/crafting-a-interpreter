@@ -43,7 +43,9 @@ object Main extends App {
     val tokens: ListBuffer[Token] = scanner.scanTokens
     for (token <- tokens) println(token)
     val parser: Parser            = Parser(tokens.toList)
-    parser.parse.fold(_ => halt(), e => println(new AstPrinter().print(e)))
+    parser.parse.fold(_ => halt(), e => new AstPrinter().print(e))
+//    val interpreter = new Interpreter
+//    interpreter.interpret()
   }
 
   def buildAST: Either[Failure, Success] = {

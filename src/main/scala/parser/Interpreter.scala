@@ -4,6 +4,25 @@ import errorhandler.{Failure, ParseError, RuntimeError}
 import lexer._
 
 class Interpreter extends Visitor[Any] {
+  def interpret(expr: Expr[Any]): Unit = {
+    val value = evaluate(expr)
+    println(stringify(value))
+  }
+
+  def stringify(any: Any): String = {
+    any match {
+      case Nil => return "nil"
+      case o : Double =>
+        var text = o.toString
+        if(text.endsWith(".0")) {
+          text = text.substring(0, text.length - 2)
+        } else {
+          return text
+        }
+    }
+    any.toString
+  }
+
   def print(expr: Expr[Any]): Any = ???
 
   def visitBinaryExpr(expr: Binary[Any]): Any = {
