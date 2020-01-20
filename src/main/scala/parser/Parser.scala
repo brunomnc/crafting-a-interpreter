@@ -2,19 +2,19 @@ package parser
 
 import core.Main
 import lexer._
-import errorhandler.ParseError
+import errorhandler.{Failure, ParseError, ParsingExpressionFailure}
 
 case class Parser(tokens: List[Token], var current: Int = 0) {
-  def parse: Either[Unit, Expr] =
+  def parse: Either[Failure, Expr[String]] =
     try {
       Right(expression)
     } catch {
-      case _: Throwable => Left(())
+      case _: Throwable => Left(ParsingExpressionFailure)
     }
 
-  def expression: Expr = equality
+  def expression: Expr[String] = equality
 
-  def equality: Expr = {
+  def equality: Expr[String] = {
     val expr = comparison
     while (matchT(BANG_EQUAL, EQUAL_EQUAL)) {
       Binary(expr, previous, comparison)
@@ -47,8 +47,8 @@ case class Parser(tokens: List[Token], var current: Int = 0) {
 
   def previous: Token = tokens(current - 1)
 
-  def comparison: Expr = {
-    var expr: Expr = addition
+  def comparison: Expr[String] = {
+    var expr: Expr[String] = addition
     while (matchT(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
       val operator = previous
       val right    = addition
@@ -57,8 +57,8 @@ case class Parser(tokens: List[Token], var current: Int = 0) {
     expr
   }
 
-  def addition: Expr = {
-    var expr: Expr = multiplication
+  def addition: Expr[String] = {
+    var expr: Expr[String] = multiplication
     while (matchT(MINUS, PLUS)) {
       val operator = previous
       val right    = multiplication
@@ -67,7 +67,7 @@ case class Parser(tokens: List[Token], var current: Int = 0) {
     expr
   }
 
-  def multiplication: Expr = {
+  def multiplication: Expr[String] = {
     var expr = unary
     while (matchT(SLASH, STAR)) {
       val operator = previous
@@ -77,7 +77,7 @@ case class Parser(tokens: List[Token], var current: Int = 0) {
     expr
   }
 
-  def unary: Expr = {
+  def unary: Expr[String] = {
     if (matchT(BANG, MINUS)) {
       val operator = previous
       val right    = unary
@@ -87,10 +87,10 @@ case class Parser(tokens: List[Token], var current: Int = 0) {
     }
   }
 
-  def primary: Expr = {
-    if (matchT(FALSE)) return Literal(false)
-    if (matchT(TRUE)) return Literal(true)
-    if (matchT(NIL)) return Literal(Nil)
+  def primary: Expr[String] = {
+    if (matchT(FALSE)) return Literal[String]("false")
+    if (matchT(TRUE)) return Literal[String]("true")
+    if (matchT(NIL)) return Literal[String]("nil")
     if (matchT(NUMBER, STRING)) return Literal(previous.literal)
     if (matchT(LEFT_PAREN)) {
       val expr = expression

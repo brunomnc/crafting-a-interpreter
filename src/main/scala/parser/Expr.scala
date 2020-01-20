@@ -2,30 +2,32 @@ package parser
 
 import lexer.Token
 
-trait Expr{
-def accept(visitor: Visitor): String
+trait Expr[T <: Any] {
+def accept(visitor: Visitor[T]): T
 }
-case class Binary(left: Expr, operator: Token, right: Expr) extends Expr {
- def accept(visitor: Visitor): String = visitor.visitBinaryExpr(this)
-}
- 
-case class Grouping(expression: Expr) extends Expr {
- def accept(visitor: Visitor): String = visitor.visitGroupingExpr(this)
+
+case class Binary[T](left: Expr[T], operator: Token, right: Expr[T]) extends Expr[T] {
+ def accept(visitor: Visitor[T]): T = visitor.visitBinaryExpr(this)
 }
  
-case class Literal(value: Any) extends Expr {
- def accept(visitor: Visitor): String = visitor.visitLiteralExpr(this)
+case class Grouping[T](expression: Expr[T]) extends Expr[T] {
+ def accept(visitor: Visitor[T]): T = visitor.visitGroupingExpr(this)
 }
  
-case class Unary(operator: Token, right: Expr) extends Expr {
- def accept(visitor: Visitor): String = visitor.visitUnaryExpr(this)
+case class Literal[T](value: Any) extends Expr[T] {
+ def accept(visitor: Visitor[T]): T = visitor.visitLiteralExpr(this)
 }
  
-trait Visitor {
-  def print(expr: Expr): String
-  def visitBinaryExpr(expr: Binary): String
-  def visitGroupingExpr(expr: Grouping): String
-  def visitLiteralExpr(expr: Literal): String
-  def visitUnaryExpr(expr: Unary): String
-  def evaluate(expr: Expr): Object
+case class Unary[T](operator: Token, right: Expr[T]) extends Expr[T] {
+ def accept(visitor: Visitor[T]): T = visitor.visitUnaryExpr(this)
+}
+ 
+
+trait Visitor[T] {
+  def print(expr: Expr[T]): T
+  def visitBinaryExpr(expr: Binary[T]): T
+  def visitGroupingExpr(expr: Grouping[T]): T
+  def visitLiteralExpr(expr: Literal[T]): T
+  def visitUnaryExpr(expr: Unary[T]): T
+  def evaluate(expr: Expr[T]): T
 }

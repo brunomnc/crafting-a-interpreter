@@ -3,7 +3,7 @@ package lexer
 case class Token(
     tokenType: TokenType,
     lexeme: String,
-    literal: Object,
+    literal: Any,
     line: Int,
     column: Int
 ) {

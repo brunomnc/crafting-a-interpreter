@@ -77,8 +77,19 @@ case class TokenScanner(source: String) extends Scanner {
       case '+' => Right(addToken(PLUS))
       case ';' => Right(addToken(SEMICOLON))
       case '*' => Right(addToken(STAR))
-      case '!' => Right(addToken(if (next('=')(isAtEnd)) EQUAL_EQUAL else EQUAL))
-      case '/' => if (next('/')(isAtEnd)) Right({ while (peek != '/' && !isAtEnd) advance }) else Right(addToken(SLASH))
+      case '!' => Right(addToken(if (next('=')(isAtEnd)) BANG_EQUAL else BANG))
+      case '=' => Right(addToken(if (next('=')(isAtEnd)) EQUAL_EQUAL else EQUAL))
+      case '>' => Right(addToken(if (next('=')(isAtEnd)) LESS_EQUAL else LESS))
+      case '<' => Right(addToken(if (next('=')(isAtEnd)) GREATER_EQUAL else GREATER))
+      case '/' =>
+        if (next('/')(isAtEnd)) {
+          while (peek != '\n' && !isAtEnd) {
+            advance
+          }
+        } else {
+          Right(addToken(SLASH))
+        }
+        Right(())
       case '\n' =>
         Right {
           line += 1
@@ -110,10 +121,12 @@ case class TokenScanner(source: String) extends Scanner {
   }
 
   def next(ex: Char)(implicit f: Boolean): Boolean =
-    if (!f || source(current) != ex) {
+    if (f || source(current) != ex) {
+      false
+    } else {
       current += 1
       true
-    } else false
+    }
 
   def peek: Char = if (isAtEnd) '\u0000' else source(current)
 
@@ -140,4 +153,25 @@ case class TokenScanner(source: String) extends Scanner {
     val tokenType: TokenType = keywords.getOrElse(text, IDENTIFIER)
     addToken(tokenType)
   }
+}
+
+object keywords {
+  val keywords: HashMap[String, TokenType] = HashMap(
+    "and"    -> AND,
+    "class"  -> CLASS,
+    "else"   -> ELSE,
+    "false"  -> FALSE,
+    "for"    -> FOR,
+    "fun"    -> FUN,
+    "if"     -> IF,
+    "nil"    -> NIL,
+    "or"     -> OR,
+    "print"  -> PRINT,
+    "return" -> RETURN,
+    "super"  -> SUPER,
+    "this"   -> THIS,
+    "true"   -> TRUE,
+    "var"    -> VAR,
+    "while"  -> WHILE
+  )
 }

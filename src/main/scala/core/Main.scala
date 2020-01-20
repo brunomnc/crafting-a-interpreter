@@ -41,9 +41,9 @@ object Main extends App {
     if (source.equals("exit")) halt()
     val scanner: Scanner          = TokenScanner(source)
     val tokens: ListBuffer[Token] = scanner.scanTokens
+    for (token <- tokens) println(token)
     val parser: Parser            = Parser(tokens.toList)
     parser.parse.fold(_ => halt(), e => println(new AstPrinter().print(e)))
-    for (token <- tokens) println(token)
   }
 
   def buildAST: Either[Failure, Success] = {
@@ -61,13 +61,12 @@ object Main extends App {
   }
 
   def halt(): Unit = {
-    println("some error")
     System.exit(0)
   }
 
   def mockAST(): Unit = {
     val expr =
-      Binary(Unary(Token(MINUS, "-", Nil, 1, 1), Literal(123)), Token(STAR, "*", Nil, 1, 1), Grouping(Literal(321)))
+      Binary[String](Unary[String](Token(MINUS, "-", Nil, 1, 1), Literal[String](123)), Token(STAR, "*", Nil, 1, 1), Grouping[String](Literal(321)))
     println(new AstPrinter().print(expr))
   }
 

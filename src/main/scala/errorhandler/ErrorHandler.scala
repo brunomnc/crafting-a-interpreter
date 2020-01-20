@@ -16,7 +16,7 @@ case object UnrecognizedToken extends LexicalFailure {
   override def err: String = "Could not recognize a token"
 }
 
-case object FileFailure extends Failure {
+object FileFailure extends IOFailure {
   override def err: String = "File does not exist"
 }
 
@@ -30,6 +30,10 @@ object ASTTypeFailure extends ParsingFailure {
 
 object ASTVisitorFailure extends ParsingFailure {
   override def err: String = "Error while building Visitors"
+}
+
+object ParsingExpressionFailure extends ParsingFailure {
+  def err: String = "Error while building an expression"
 }
 
 case class ParseError(error: String) extends RuntimeException
