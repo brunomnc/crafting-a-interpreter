@@ -1,1 +1,1 @@
-test
+sealed trait Test
